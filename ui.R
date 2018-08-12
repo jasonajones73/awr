@@ -198,15 +198,11 @@ ui <- navbarPage("Are We Represented?",
              )
            )
   ),
-  tabPanel("About",
-             fluidRow(
-               column(12,
-    p("In North Carolina, county commissioners are elected to provide for the safety and welfare of residents within their counties and to administer social services, public health services and education programs in conjunction with the state. They are responsible for adopting an annual budget, establishing the property tax rate, providing funding for the construction of public school buildings, and enacting local ordinances. Each board appoints a county manager to administer and oversee the activities of county departments."),
-    p("Commission boards range in member size from 5 to 9. County Commissioners are generally elected to 4 year terms. In some counties, all commissioners are elected during the same election cycle. In others, the election cycles are staggered among the members."),
-    p(HTML(paste0("For information on registering to vote, ", a(href = "https://www.ncsbe.gov/Voters/Registering-to-Vote", "click here to visit the North Carolina State Board of Elections website.")))),
-    p("Voter regisration data was sourced from a North Carolina State Board of Elections database last modified June 16, 2018. County Commissioner data was compiled from a  candidate listing spreadsheet received via FOIA to the NC State Board of Elections, the state voter registration database and county government websites.")
-             )
-           )
-  )
+  br(),
+  br(),
+  p("In North Carolina, county commissioners are elected to provide for the safety and welfare of residents within their counties and to administer social services, public health services and education programs in conjunction with the state. They are responsible for adopting an annual budget, establishing the property tax rate, providing funding for the construction of public school buildings, and enacting local ordinances. Each board appoints a county manager to administer and oversee the activities of county departments."),
+  p("Commission boards range in member size from 5 to 9. County Commissioners are generally elected to 4 year terms. In some counties, all commissioners are elected during the same election cycle. In others, the election cycles are staggered among the members."),
+  p(HTML(paste0("For information on registering to vote, ", a(href = "https://www.ncsbe.gov/Voters/Registering-to-Vote", "click here to visit the North Carolina State Board of Elections website.")))),
+  p("Voter regisration data was sourced from a North Carolina State Board of Elections database last modified June 16, 2018. County Commissioner data was compiled from a  candidate listing spreadsheet received via FOIA to the NC State Board of Elections, the state voter registration database and county government websites.")
 )
 

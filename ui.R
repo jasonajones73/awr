@@ -1,4 +1,5 @@
 require(shinythemes)
+require(highcharter)
 
 # Create county character object
 counties = c(

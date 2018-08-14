@@ -13,7 +13,7 @@ server = server <- function(input, output) {
       req(input$county1)
       
       party %>%
-        filter(County == "GUILFORD") %>%
+        filter(County == input$county1) %>%
         group_by(Type) %>%
         mutate(total = sum(n)) %>%
         ungroup() %>%

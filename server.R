@@ -1,106 +1,40 @@
-require(tidyverse)
-require(scales)
-require(markdown)
+require(highcharter)
 
-#Import data
-commissioners <- read_csv("data/cc-21june2018.csv") 
-voter <- read_csv("data/nc_voter_demographics.csv") 
-voter[is.na(voter)] <- 0
-
-###----
-
-#Tidy Commissioners Data
-nc_cc_party <- commissioners %>%
-  mutate(County = toupper(County)) %>%
-  group_by(County, `Party-VR`) %>%
-  count(County, `Party-VR`) %>%
-  spread(`Party-VR`, n) %>%
-  mutate(GRE = 0, LIB = 0) %>%
-  select(County, DEM, GRE, LIB, REP, UNA) %>%
-  gather(`Party-VR`, n, DEM:UNA, factor_key=TRUE) %>%
-  ungroup() %>%
-  complete(County, `Party-VR`, fill = list(n = 0))
-
-nc_cc_race <- commissioners %>%
-  mutate(County = toupper(County)) %>%
-  group_by(County, Race) %>%
-  count(County, Race) %>%
-  ungroup() %>%
-  complete(County, Race, fill = list(n = 0)) %>%
-  spread(Race, n) %>%
-  mutate(A = 0, O = 0) %>%
-  select(County, A, B, I, M, O, U, W) %>%
-  gather(Race, n, A:W, factor_key=TRUE) %>%
-  arrange(County)
-
-nc_cc_eth <- commissioners %>%
-  mutate(County = toupper(County)) %>%
-  group_by(County, Ethnicity) %>%
-  count(County, Ethnicity) %>%
-  spread(Ethnicity, n) %>%
-  mutate(HL = 0) %>%
-  select(County, HL, NL, UN) %>%
-  gather(Ethnicity, n, HL:UN, factor_key=TRUE) %>%
-  ungroup() %>%
-  complete(County, Ethnicity, fill = list(n = 0))
-
-nc_cc_gender <- commissioners %>%
-  mutate(County = toupper(County)) %>%
-  group_by(County, Gender) %>%
-  count(County, Gender) %>%
-  spread(Gender, n)  %>%
-  mutate(U = 0) %>%
-  gather(Gender, n, F:U, factor_key=TRUE) %>%
-  ungroup() %>%
-  complete(County, Gender, fill = list(n = 0))
-
-#Palettes
-party_palette <- c("DEM" = "#2E86C1", "GRE" = "#17A589", "LIB" = "#D4AC0D", "REP" = "#CB4335", "UNA" = "#884EA0" )
-
-race_palette <- c("A" = "#E74C3C", "B" = "#27AE60", "I" = "#9B59B6", "M" = "#1ABC9C",  "O" = "#F1C40F", "U" = "#C0392B", "W" = "#E67E22")
-
-cc_gender_palette <- c("F" = "#9B59B6", "M" = "#1ABC9C", "U" = "#F4D03F")
-
-voter_gender_palette <- c("Female" = "#9B59B6", "Male" = "#1ABC9C", "UnDisclosedGender" = "#F4D03F")
-
-#Labels
-party_labels <- c("DEM" = "Democrats", "REP" = "Republicans", "GRE" = "Green", "LIB" = "Libertarians", "UNA" = "Unaffiliated")
-
-race_labels <- c("A" = "Asian", "B" = "Black", "I" = "Native American", "M" = "Multiracial", "O" = "Other", "U" = "Undisclosed", "W" = "White")
-
-eth_labels <- c("HL" = "Hispanic-Latino", "NL" = "Not Hispanic-Latino", "UN" = "Undisclosed")
-
-cc_gender_labels <- c("F" = "Female", "M" = "Male", "U" = "Undisclosed")
-
-voter_gender_labels <- c("Female" = "Female", "Male" = "Male", "UnDisclosedGender" = "Undisclosed")
+source("external.R")
 
 # Define Server
 
 server = server <- function(input, output) {
   
   #County Commissioners - Party Affiliation
-  output$cc_party <- renderPlot({
+  output$cc_party <- renderHighchart({
     
-    county_cc_party <- reactive({
+    county_party <- reactive({
       req(input$county1)
       
-      nc_cc_party %>%
-        filter(County == input$county1) %>%
-        mutate(cc_party_pct = (n/sum(n)))
+      party %>%
+        filter(County == "GUILFORD") %>%
+        group_by(Type) %>%
+        mutate(total = sum(n)) %>%
+        ungroup() %>%
+        mutate(party_pct = n/total) %>%
+        rename(party_vr = `Party-VR`) %>%
+        mutate(party_pct = round(party_pct*100, digits = 2))
       
     })
     
-    ggplot(county_cc_party(), aes(x = `Party-VR`, y=cc_party_pct, fill = factor(`Party-VR`))) + 
-      geom_bar(stat = "identity", position = position_dodge2(preserve = "single")) +
-      scale_fill_manual(values = party_palette) +
-      scale_x_discrete(labels= party_labels) +
-      scale_y_continuous(labels=percent, limits = c(0,1)) +
-      labs(fill="Party", 
-           x=NULL, 
-           y=NULL, 
-           title="County Commissioners") +
-      theme(axis.text.x = element_text(angle = 65, vjust = 1, hjust=1, size = 14)) +
-      guides(fill=FALSE)
+    hchart(county_party(), "column", hcaes(x = party_vr, y = party_pct, group = Type)) %>%
+      hc_yAxis(
+        title = list(text = "Party Percent"),
+        labels = list(format = "{value}%"), max = 100
+      ) %>%
+      hc_xAxis(
+        title = list(text = "")
+      ) %>%
+      hc_title(text = "Party Affiliation") %>%
+      hc_tooltip(pointFormat = "<b>{point.y}%</b>",
+                 headerFormat = "<span style='font-size:10px'>{series.name}</span><br/>") %>%
+      hc_add_theme(hc_theme_google())
   })
   
   #Voters - Party Affiliation

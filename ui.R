@@ -1,3 +1,5 @@
+require(shinythemes)
+
 # Create county character object
 counties = c(
   "ALAMANCE",
@@ -120,15 +122,12 @@ ui <- navbarPage("Are We Represented?",
         submitButton("Update County")
       ),
       mainPanel(
-        fluidRow(
           br(),
           br(),
-          column(6, plotOutput("cc_party")),
-          column(6, plotOutput("voter_party"))
+          highchartOutput("cc_party")
         ) # fluidRow
       )
-    )
-  ),
+    ),
   tabPanel("Race",
     sidebarLayout(
       sidebarPanel(

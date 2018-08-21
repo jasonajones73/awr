@@ -6,22 +6,22 @@ source("external.R")
 
 server = server <- function(input, output) {
   
+  county_party <- reactive({
+    req(input$county1)
+    
+    party %>%
+      filter(County == input$county1) %>%
+      group_by(Type) %>%
+      mutate(total = sum(n)) %>%
+      ungroup() %>%
+      mutate(party_pct = n/total) %>%
+      rename(party_vr = `Party-VR`) %>%
+      mutate(party_pct = round(party_pct*100, digits = 2))
+    
+  })
+  
   #County Commissioners - Party Affiliation
   output$cc_party <- renderHighchart({
-    
-    county_party <- reactive({
-      req(input$county1)
-      
-      party %>%
-        filter(County == input$county1) %>%
-        group_by(Type) %>%
-        mutate(total = sum(n)) %>%
-        ungroup() %>%
-        mutate(party_pct = n/total) %>%
-        rename(party_vr = `Party-VR`) %>%
-        mutate(party_pct = round(party_pct*100, digits = 2))
-      
-    })
     
     hchart(county_party(), "column", hcaes(x = party_vr, y = party_pct, group = Type)) %>%
       hc_yAxis(
@@ -33,7 +33,7 @@ server = server <- function(input, output) {
       ) %>%
       hc_title(text = "Party Affiliation") %>%
       hc_tooltip(pointFormat = "<b>{point.y}%</b>",
-                 headerFormat = "<span style='font-size:10px'>{series.name}</span><br/>") %>%
+                 headerFormat = "<span style='font-size:10px'>{series.name}</span> <br/>") %>%
       hc_add_theme(hc_theme_google())
   })
   
@@ -217,4 +217,11 @@ server = server <- function(input, output) {
     
   })
   
+  output$downloadData <- downloadHandler(
+    filename = "party_affiliation.csv", 
+    content = function(file) {
+      write.csv(county_party(), file, row.names = FALSE)
+    } 
+  )
+    
 }

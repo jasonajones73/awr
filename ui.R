@@ -197,7 +197,15 @@ ui <- navbarPage("Are We Represented?",
                ) # fluidRow
              )
            )
-  ),
+          ),
+  tabPanel("Data Download",
+           sidebarLayout(
+             sidebarPanel(
+               downloadButton("downloadData", "Download")
+             ),
+             mainPanel()
+           )
+        ),
   br(),
   br(),
   p("In North Carolina, county commissioners are elected to provide for the safety and welfare of residents within their counties and to administer social services, public health services and education programs in conjunction with the state. They are responsible for adopting an annual budget, establishing the property tax rate, providing funding for the construction of public school buildings, and enacting local ordinances. Each board appoints a county manager to administer and oversee the activities of county departments."),
